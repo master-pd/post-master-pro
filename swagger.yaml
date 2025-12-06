@@ -1,0 +1,285 @@
+openapi: 3.0.0
+info:
+  title: Post-Master Pro API
+  description: Complete Social Media Backend API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: ranasheikhe272@gmail.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Development server
+  - url: https://api.postmaster.com/api/v1
+    description: Production server
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Users
+    description: User management operations
+  - name: Posts
+    description: Post management operations
+  - name: Comments
+    description: Comment management operations
+  - name: Feed
+    description: User feed operations
+  - name: Messages
+    description: Real-time messaging
+  - name: Notifications
+    description: User notifications
+  - name: Groups
+    description: Group management
+  - name: Events
+    description: Event management
+  - name: Uploads
+    description: File upload operations
+  - name: Admin
+    description: Admin operations
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: refreshToken
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        username:
+          type: string
+          example: "john_doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        fullName:
+          type: string
+          example: "John Doe"
+        bio:
+          type: string
+          example: "Software Developer"
+        profilePicture:
+          type: string
+          format: uri
+          example: "https://example.com/profile.jpg"
+        role:
+          type: string
+          enum: [user, admin, moderator]
+          example: "user"
+        isEmailVerified:
+          type: boolean
+          example: true
+        isActive:
+          type: boolean
+          example: true
+        lastLogin:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time"
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        content:
+          type: string
+        media:
+          type: array
+          items:
+            type: string
+        userId:
+          type: string
+          format: uuid
+        visibility:
+          type: string
+          enum: [public, private, friends]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+        timestamp:
+          type: string
+          format: date-time
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+    ForbiddenError:
+      description: Insufficient permissions
+    NotFoundError:
+      description: Resource not found
+    ValidationError:
+      description: Validation failed
+    ServerError:
+      description: Internal server error
+paths:
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                fullName:
+                  type: string
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          description: Invalid credentials
+  /auth/me:
+    get:
+      tags: [Authentication]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /posts:
+    get:
+      tags: [Posts]
+      summary: Get all posts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Posts retrieved successfully
+    post:
+      tags: [Posts]
+      summary: Create a new post
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+                media:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                visibility:
+                  type: string
+                  enum: [public, private, friends]
+      responses:
+        '201':
+          description: Post created successfully
+security:
+  - bearerAuth: []

@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: post-master-backend
+    env: node
+    buildCommand: npm install && npm run build && npx prisma generate
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+    healthCheckPath: /health
+    autoDeploy: true
