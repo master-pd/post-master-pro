@@ -1,33 +1,74 @@
-services:
-  - type: web
-    name: post-master-pro
-    env: node
-    region: singapore
-    plan: free
-    branch: main
-    buildCommand: |
-      npm install
-      npm run db:migrate
-    startCommand: npm start
-    healthCheckPath: /health
-    autoDeploy: true
-    envVars:
-      - key: NODE_ENV
-        value: production
+# Exported from Render on 2025-12-14T19:32:48Z
+version: "1"
+projects:
+- name: My project
+  environments:
+  - name: Production
+    services:
+    - type: web
+      name: post-master-pro
+      runtime: node
+      repo: https://github.com/master-pd/post-master-pro
+      plan: free
+      envVars:
+      - key: REDIS_URL
+        sync: false
+      - key: API_VERSION
+        sync: false
+      - key: MAX_IMAGE_SIZE
+        sync: false
+      - key: MAX_VIDEO_SIZE
+        sync: false
+      - key: LOG_LEVEL
+        sync: false
+      - key: RATE_LIMIT_MAX
+        sync: false
+      - key: RATE_LIMIT_WINDOW_MS
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PORT
+        sync: false
+      - key: EMAIL_HOST
+        sync: false
+      - key: CLOUDINARY_UPLOAD_PRESET_NAME
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: JWT_REFRESH_EXPIRE
+        sync: false
+      - key: JWT_EXPIRE
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
       - key: PORT
-        value: 3000
-      - key: CLUSTER_ENABLED
-        value: false
-      - key: ENABLE_QUEUE
-        value: false
-      - key: ENABLE_SOCKETS
-        value: true
-      - key: ENABLE_SWAGGER
-        value: true
+        sync: false
+      - key: NODE_ENV
+        sync: false
+      region: singapore
+      buildCommand: npm install
+      startCommand: node src/server.js
+      autoDeployTrigger: commit
+      previews:
+        generation: automatic
 
-databases:
-  - name: postmasterdb
-    databaseName: postmasterdb
-    user: postmasteruser
-    plan: free
-    region: singapore
